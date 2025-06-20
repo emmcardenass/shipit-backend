@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: shipit-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://hypradmin:_bs8RBG9RmSCdCW@clusterhypr.yxyvrpa.mongodb.net/shipit?retryWrites=true&w=majority
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        value: mitokensecretoshipit
+      - key: SKYDROPX_API_KEY
+        value: pcGm67C9bCFi1Vua_4JrxDdTZB1-iflKDDI
+      - key: SKYDROPX_API_SECRET
+        value: uDJVfYWcEnUELatSzmuizOhnj67nfXrk3o1UkTWG6_Y
+      - key: CLOUDINARY_NAME
+        value: dzpfmcm55
+      - key: CLOUDINARY_KEY
+        value: 853729643472296
+      - key: CLOUDINARY_SECRET
+        value: KFI2JqCFn77KtbGE2qXoT4jZco8
+      - key: SHIPDAY_API_KEY
+        value: DcnreAlkfL.q9io91sKEbyUOlYnNXCP
+      - key: SHIPDAY_WEBHOOK_TOKEN
+        value: SHIPDAY_SECRET_2025
