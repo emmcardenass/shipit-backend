@@ -1,72 +1,49 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import fetch from 'node-fetch';
+import Shipday from "shipday/integration";
+import OrderInfoRequest from "shipday/integration/order/request/order.info.request";
+import PaymentMethod from "shipday/integration/order/types/payment.method";
+import CardType from "shipday/integration/order/types/card.type";
+import OrderItem from "shipday/integration/order/request/order.item";
 
-const SHIPDAY_API_URL = 'https://api.shipday.com';
+const shipdayClient = new Shipday(process.env.SHIPDAY_API_KEY, 55800); // El segundo parámetro es opcional, usa tu zona horaria en minutos si es necesario.
 
 export const crearEnvioShipday = async (pedido) => {
-  const apiKey = process.env.SHIPDAY_API_KEY;
-
-  if (!apiKey) {
-    console.error("❌ SHIPDAY_API_KEY no está definida. Revisa tu archivo .env");
-    throw new Error("API Key de Shipday no encontrada");
-  }
-
-  // Reemplaza itemType por algo estandarizado según la documentación
-  const tipoItem = "package"; // O puede ser 'food', 'medicine', etc., según tu lógica de negocio
-
-  const payload = {
-    restaurant: {
-      name: "SHIP IT",
-      phone: "+52" + (pedido.origen.telefono || "8110158436"),
-      address: pedido.origen.direccion,
-      latitude: parseFloat(pedido.origen.coordenadas[1]),
-      longitude: parseFloat(pedido.origen.coordenadas[0]),
-    },
-    customer: {
-      name: pedido.destino.nombre,
-      phone: "+52" + (pedido.destino.telefono || "0000000000"),
-      address: pedido.destino.direccion,
-      latitude: parseFloat(pedido.destino.coordenadas[1]),
-      longitude: parseFloat(pedido.destino.coordenadas[0]),
-      email: pedido.destino.email || "sinemail@shipit.com",
-    },
-    orderNumber: pedido.envio.numeroGuia,
-    itemType: tipoItem,
-    deliveryTime: new Date(pedido.fechaEntregaProgramada).toISOString(),
-    pickupReadyTime: new Date(pedido.fechaRecoleccionProgramada).toISOString(),
-    codAmount: pedido.envio.tipoPago === 'COD' ? parseFloat(pedido.envio.cod || 0) : 0,
-    requiresProofOfDelivery: true,
-    hasPickup: true,
-    hasDelivery: true,
-  };
-
-  console.log("📦 Payload Shipday:", JSON.stringify(payload, null, 2));
-  console.log("🔐 API KEY usada para Shipday:", apiKey);
-
   try {
-    const response = await fetch(`${SHIPDAY_API_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': apiKey,
-      },
-      body: JSON.stringify(payload),
-    });
+    const order = new OrderInfoRequest(
+      pedido.envio.numeroGuia,                               
+      pedido.destino.nombre,                                 
+      pedido.destino.direccion,                              
+      pedido.destino.email || "sinemail@shipit.com",         
+      "+52" + (pedido.destino.telefono || "0000000000"),    
+      "SHIP IT",                                             
+      pedido.origen.direccion                                
+    );
 
-    const data = await response.text();
-
-    if (!response.ok) {
-      console.error("❌ Error al crear pedido en Shipday:", data);
-      throw new Error("Error al crear pedido en Shipday");
+    order.setRestaurantPhoneNumber("+52" + (pedido.origen.telefono || "8110158436"));
+    order.setExpectedDeliveryDate(new Date(pedido.fechaEntregaProgramada).toISOString().split("T")[0]);
+    order.setExpectedDeliveryTime("13:00:00"); 
+    order.setExpectedPickupTime("09:00:00"); 
+    order.setPickupLatLong(pedido.origen.coordenadas[1], pedido.origen.coordenadas[0]);
+    order.setDeliveryLatLong(pedido.destino.coordenadas[1], pedido.destino.coordenadas[0]);
+    order.setDeliveryInstruction(pedido.envio.instrucciones || "");
+    order.setTotalOrderCost(pedido.envio.totalCobrado || 0);
+    
+    if (pedido.envio.tipoPago === "COD") {
+      order.setPaymentMethod(PaymentMethod.CASH);
+    } else {
+      order.setPaymentMethod(PaymentMethod.PREPAID);
     }
 
-    console.log("🚀 Pedido enviado a Shipday:", data);
-    return JSON.parse(data);
+    const items = [];
+    items.push(new OrderItem(pedido.envio.contenido || "Paquete", pedido.envio.peso || 1, 1));
+    order.setOrderItems(items);
 
+    const res = await shipdayClient.orderService.insertOrder(order);
+    console.log("🚀 Pedido registrado en Shipday:", res);
   } catch (error) {
-    console.error("❌ Error de conexión con Shipday:", error.message);
+    console.error("❌ Error al registrar en Shipday:", error.message);
     throw new Error("Fallo en la integración con Shipday");
   }
 };
