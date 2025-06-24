@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import Shipday from "shipday/integration";
+import Shipday from 'shipday/integration/index.js';
 import OrderInfoRequest from "shipday/integration/order/request/order.info.request";
 import PaymentMethod from "shipday/integration/order/types/payment.method";
 import CardType from "shipday/integration/order/types/card.type";
 import OrderItem from "shipday/integration/order/request/order.item";
 
-const shipdayClient = new Shipday(process.env.SHIPDAY_API_KEY, 55800); // El segundo parámetro es opcional, usa tu zona horaria en minutos si es necesario.
+const shipdayClient = new Shipday(process.env.SHIPDAY_API_KEY, 55800); // Segundo parámetro es zona horaria, ajusta si quieres
 
 export const crearEnvioShipday = async (pedido) => {
   try {
@@ -29,7 +29,7 @@ export const crearEnvioShipday = async (pedido) => {
     order.setDeliveryLatLong(pedido.destino.coordenadas[1], pedido.destino.coordenadas[0]);
     order.setDeliveryInstruction(pedido.envio.instrucciones || "");
     order.setTotalOrderCost(pedido.envio.totalCobrado || 0);
-    
+
     if (pedido.envio.tipoPago === "COD") {
       order.setPaymentMethod(PaymentMethod.CASH);
     } else {
