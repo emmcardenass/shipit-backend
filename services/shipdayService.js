@@ -8,31 +8,34 @@ const SHIPDAY_API_URL = 'https://api.shipday.com';
 export const crearEnvioShipday = async (pedido) => {
   const apiKey = process.env.SHIPDAY_API_KEY;
 
-  // Verificar que la API Key exista
   if (!apiKey) {
     console.error("❌ SHIPDAY_API_KEY no está definida. Revisa tu archivo .env");
     throw new Error("API Key de Shipday no encontrada");
   }
 
+  // Reemplaza itemType por algo estandarizado según la documentación
+  const tipoItem = "package"; // O puede ser 'food', 'medicine', etc., según tu lógica de negocio
+
   const payload = {
     restaurant: {
       name: "SHIP IT",
-      phone: pedido.origen.telefono,
+      phone: "+52" + (pedido.origen.telefono || "8110158436"),
       address: pedido.origen.direccion,
-      latitude: pedido.origen.coordenadas[1],  // latitud
-      longitude: pedido.origen.coordenadas[0], // longitud
+      latitude: parseFloat(pedido.origen.coordenadas[1]),
+      longitude: parseFloat(pedido.origen.coordenadas[0]),
     },
     customer: {
       name: pedido.destino.nombre,
-      phone: pedido.destino.telefono,
+      phone: "+52" + (pedido.destino.telefono || "0000000000"),
       address: pedido.destino.direccion,
-      latitude: pedido.destino.coordenadas[1],
-      longitude: pedido.destino.coordenadas[0],
+      latitude: parseFloat(pedido.destino.coordenadas[1]),
+      longitude: parseFloat(pedido.destino.coordenadas[0]),
+      email: pedido.destino.email || "sinemail@shipit.com",
     },
     orderNumber: pedido.envio.numeroGuia,
-    itemType: pedido.envio.contenido,
-    deliveryTime: pedido.fechaEntregaProgramada,
-    pickupReadyTime: pedido.fechaRecoleccionProgramada,
+    itemType: tipoItem,
+    deliveryTime: new Date(pedido.fechaEntregaProgramada).toISOString(),
+    pickupReadyTime: new Date(pedido.fechaRecoleccionProgramada).toISOString(),
     codAmount: pedido.envio.tipoPago === 'COD' ? parseFloat(pedido.envio.cod || 0) : 0,
     requiresProofOfDelivery: true,
     hasPickup: true,
