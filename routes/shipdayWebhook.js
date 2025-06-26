@@ -6,6 +6,25 @@ dotenv.config();
 
 const router = express.Router();
 
+const traducirEstado = (estadoShipday) => {
+  switch (estadoShipday) {
+    case "CREATED":
+      return "creado";
+    case "ASSIGNED":
+      return "creado"; // Solo asignado, no recolectado todavía
+    case "OUT_FOR_DELIVERY":
+      return "en_camino";
+    case "DELIVERED":
+      return "entregado";
+    case "FAILED":
+      return "reagendado";
+    case "RESCHEDULED":
+      return "reagendado";
+    default:
+      return "creado";
+  }
+};
+
 router.post("/webhook", async (req, res) => {
   const token = req.headers["shipday-webhook-token"];
 
@@ -31,10 +50,11 @@ router.post("/webhook", async (req, res) => {
       return res.status(404).json({ success: false, message: "Pedido no encontrado" });
     }
 
-    pedido.envio.estado = status;
+    const nuevoEstado = traducirEstado(status);
+    pedido.envio.estado = nuevoEstado;
     await pedido.save();
 
-    console.log(`✅ Pedido ${orderId} actualizado a estado: ${status}`);
+    console.log(`✅ Pedido ${orderId} actualizado a estado: ${nuevoEstado}`);
     res.json({ success: true });
   } catch (error) {
     console.error("🚨 Error actualizando pedido:", error);
