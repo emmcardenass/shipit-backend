@@ -28,6 +28,9 @@ const traducirEstado = (estadoShipday) => {
 router.post("/webhook", async (req, res) => {
   const token = req.headers["shipday-webhook-token"];
 
+  console.log("🔒 Token recibido:", token);
+console.log("🔑 Token esperado:", process.env.SHIPDAY_WEBHOOK_TOKEN);
+
   if (token !== process.env.SHIPDAY_WEBHOOK_TOKEN) {
     console.log("❌ Token inválido en Webhook Shipday");
     return res.status(403).json({ success: false, message: "Token inválido" });
