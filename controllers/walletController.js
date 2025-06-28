@@ -1,4 +1,3 @@
-// controllers/walletController.js
 import User from "../models/User.js";
 
 export const getWalletData = async (req, res) => {
@@ -88,7 +87,7 @@ export const solicitarRetiro = async (req, res) => {
 };
 
 export const agregarSaldo = async (req, res) => {
-  const { metodo, monto } = req.body;
+  const { metodo, monto, banco, clabe, bancoOtro } = req.body;
 
   try {
     const user = await User.findById(req.user._id);
@@ -102,9 +101,14 @@ export const agregarSaldo = async (req, res) => {
     user.transacciones = [
       ...(user.transacciones || []),
       {
+        _id: new Date().getTime(),
         fecha: new Date(),
         tipo: `Solicitud de recarga (${metodoFormateado})`,
         monto: parseFloat(monto),
+        banco: banco || "",
+        bancoOtro: bancoOtro || "",
+        clabe: clabe || "",
+        aprobado: false,
       },
     ];
 
@@ -123,10 +127,16 @@ export const getSolicitudesRecarga = async (req, res) => {
       (u.transacciones || [])
         .filter((t) => t.tipo?.startsWith("Solicitud de recarga"))
         .map((t) => ({
+          userId: u._id,
+          transaccionId: t._id,
           usuario: u.nombre || "Sin nombre",
           email: u.email,
           monto: t.monto,
           metodo: t.tipo.replace("Solicitud de recarga (", "").replace(")", ""),
+          banco: t.banco || "",
+          bancoOtro: t.bancoOtro || "",
+          clabe: t.clabe || "",
+          aprobado: t.aprobado || false,
           fecha: new Date(t.fecha).toLocaleString("es-MX", {
             dateStyle: "short",
             timeStyle: "short",
@@ -138,5 +148,25 @@ export const getSolicitudesRecarga = async (req, res) => {
     res.json(solicitudes.reverse());
   } catch (err) {
     res.status(500).json({ message: "Error al obtener solicitudes" });
+  }
+};
+
+export const aprobarRecarga = async (req, res) => {
+  const { userId, transaccionId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const transaccion = (user.transacciones || []).find(t => t._id == transaccionId);
+    if (!transaccion) return res.status(404).json({ message: "Transacción no encontrada" });
+
+    transaccion.aprobado = true;
+    user.saldoEnvios = (user.saldoEnvios || 0) + transaccion.monto;
+
+    await user.save();
+    res.json({ message: "Recarga aprobada y saldo agregado" });
+  } catch (err) {
+    res.status(500).json({ message: "Error al aprobar recarga" });
   }
 };
