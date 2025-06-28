@@ -86,3 +86,57 @@ export const solicitarRetiro = async (req, res) => {
     res.status(500).json({ message: "Error al solicitar retiro" });
   }
 };
+
+export const agregarSaldo = async (req, res) => {
+  const { metodo, monto } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const metodoFormateado =
+      metodo === "transferencia" ? "Transferencia bancaria" :
+      metodo === "efectivo" ? "Efectivo" :
+      metodo;
+
+    user.transacciones = [
+      ...(user.transacciones || []),
+      {
+        fecha: new Date(),
+        tipo: `Solicitud de recarga (${metodoFormateado})`,
+        monto: parseFloat(monto),
+      },
+    ];
+
+    await user.save();
+    res.json({ message: "Solicitud de recarga enviada correctamente" });
+  } catch (err) {
+    res.status(500).json({ message: "Error al solicitar recarga" });
+  }
+};
+
+export const getSolicitudesRecarga = async (req, res) => {
+  try {
+    const usuarios = await User.find({}, "nombre email transacciones");
+
+    const solicitudes = usuarios.flatMap((u) =>
+      (u.transacciones || [])
+        .filter((t) => t.tipo?.startsWith("Solicitud de recarga"))
+        .map((t) => ({
+          usuario: u.nombre || "Sin nombre",
+          email: u.email,
+          monto: t.monto,
+          metodo: t.tipo.replace("Solicitud de recarga (", "").replace(")", ""),
+          fecha: new Date(t.fecha).toLocaleString("es-MX", {
+            dateStyle: "short",
+            timeStyle: "short",
+            hour12: false,
+          }),
+        }))
+    );
+
+    res.json(solicitudes.reverse());
+  } catch (err) {
+    res.status(500).json({ message: "Error al obtener solicitudes" });
+  }
+};
