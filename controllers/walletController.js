@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import mongoose from "mongoose";
 
 export const getWalletData = async (req, res) => {
   try {
@@ -104,7 +105,7 @@ export const agregarSaldo = async (req, res) => {
     user.transacciones = [
       ...(user.transacciones || []),
       {
-        _id: new Date().getTime(),
+        _id: new mongoose.Types.ObjectId(),
         fecha: new Date(),
         tipo: `Solicitud de recarga (${metodoFormateado})`,
         monto: parseFloat(monto),
