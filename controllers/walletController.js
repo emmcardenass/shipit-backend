@@ -170,3 +170,41 @@ export const aprobarRecarga = async (req, res) => {
     res.status(500).json({ message: "Error al aprobar recarga" });
   }
 };
+
+export const rechazarRecarga = async (req, res) => {
+  const { userId, transaccionId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.transacciones = (user.transacciones || []).filter(t => t._id != transaccionId);
+
+    await user.save();
+    res.json({ message: "Solicitud de recarga rechazada y eliminada" });
+  } catch (err) {
+    res.status(500).json({ message: "Error al rechazar recarga" });
+  }
+};
+
+export const editarRecarga = async (req, res) => {
+  const { userId, transaccionId, monto, banco, bancoOtro, clabe } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const transaccion = (user.transacciones || []).find(t => t._id == transaccionId);
+    if (!transaccion) return res.status(404).json({ message: "Transacción no encontrada" });
+
+    transaccion.monto = parseFloat(monto) || transaccion.monto;
+    transaccion.banco = banco || transaccion.banco;
+    transaccion.bancoOtro = bancoOtro || transaccion.bancoOtro;
+    transaccion.clabe = clabe || transaccion.clabe;
+
+    await user.save();
+    res.json({ message: "Solicitud de recarga actualizada correctamente" });
+  } catch (err) {
+    res.status(500).json({ message: "Error al editar recarga" });
+  }
+};
