@@ -54,7 +54,7 @@ export const migrateToSaldo = async (req, res) => {
 };
 
 export const solicitarRetiro = async (req, res) => {
-  const { metodo, monto } = req.body;
+  const { metodo, monto, banco, clabe, bancoOtro } = req.body;
   try {
     const user = await User.findById(req.user._id);
     if (!user || user.balance < monto)
@@ -75,7 +75,10 @@ export const solicitarRetiro = async (req, res) => {
           : metodo === "efectivo"
           ? "Retiro solicitado (efectivo)"
           : `Retiro solicitado (${metodo})`,
-        monto: -monto 
+        monto: -monto,
+        banco: banco || "",
+        bancoOtro: bancoOtro || "",
+        clabe: clabe || "",
       },      
     ];
 
@@ -94,7 +97,8 @@ export const agregarSaldo = async (req, res) => {
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
     const metodoFormateado =
-      metodo === "transferencia" ? "Transferencia bancaria" :
+      metodo === "spei" ? "Transferencia SPEI" :
+      metodo === "tarjeta" ? "Tarjeta bancaria" :
       metodo === "efectivo" ? "Efectivo" :
       metodo;
 
@@ -111,6 +115,10 @@ export const agregarSaldo = async (req, res) => {
         aprobado: false,
       },
     ];
+
+    console.log("✅ Recarga recibida:", {
+      metodo: metodoFormateado, banco, bancoOtro, clabe
+    });
 
     await user.save();
     res.json({ message: "Solicitud de recarga enviada correctamente" });
