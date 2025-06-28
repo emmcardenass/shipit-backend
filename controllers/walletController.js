@@ -97,10 +97,9 @@ export const agregarSaldo = async (req, res) => {
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
     const metodoFormateado =
-      metodo === "spei" ? "Transferencia SPEI" :
-      metodo === "tarjeta" ? "Tarjeta bancaria" :
-      metodo === "efectivo" ? "Efectivo" :
-      metodo;
+  metodo === "spei" ? "Transferencia SPEI" :
+  metodo === "tarjeta" ? "Tarjeta de crédito o débito" :
+  metodo;
 
     user.transacciones = [
       ...(user.transacciones || []),
