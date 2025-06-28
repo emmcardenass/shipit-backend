@@ -122,8 +122,9 @@ export const agregarSaldo = async (req, res) => {
     await user.save();
     res.json({ message: "Solicitud de recarga enviada correctamente" });
   } catch (err) {
+    console.error("❌ Error interno al solicitar recarga:", err);  // IMPRIME EL ERROR REAL
     res.status(500).json({ message: "Error al solicitar recarga" });
-  }
+  }  
 };
 
 export const getSolicitudesRecarga = async (req, res) => {
