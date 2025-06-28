@@ -134,14 +134,16 @@ export const getSolicitudesRecarga = async (req, res) => {
 
     const solicitudes = usuarios.flatMap((u) =>
       (u.transacciones || [])
-        .filter((t) => t.tipo?.startsWith("Solicitud de recarga"))
+        .filter((t) => t.tipo?.toLowerCase().includes("solicitud de recarga"))
         .map((t) => ({
           userId: u._id,
           transaccionId: t._id,
           usuario: u.nombre || "Sin nombre",
           email: u.email,
           monto: t.monto,
-          metodo: t.tipo.replace("Solicitud de recarga (", "").replace(")", ""),
+          metodo: t.tipo?.includes("Solicitud de recarga (")
+            ? t.tipo.replace("Solicitud de recarga (", "").replace(")", "")
+            : t.tipo || "",
           banco: t.banco || "",
           bancoOtro: t.bancoOtro || "",
           clabe: t.clabe || "",

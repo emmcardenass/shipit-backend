@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -19,9 +18,15 @@ const userSchema = new mongoose.Schema({
   saldoEnvios: { type: Number, default: 0 },
   transacciones: [
     {
+      _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
       fecha: { type: Date, default: Date.now },
       tipo: { type: String, required: true },
       monto: { type: Number, required: true },
+      banco: { type: String, default: "" },
+      bancoOtro: { type: String, default: "" },
+      clabe: { type: String, default: "" },
+      aprobado: { type: Boolean, default: false },
+      rechazado: { type: Boolean, default: false }, // Opcional, si quieres dejar histórico de rechazos
     },
   ],
 }, {
