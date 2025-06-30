@@ -31,7 +31,11 @@ const __dirname = path.dirname(__filename);
 
 // 🛡️ Middlewares
 app.use(cors({
-  origin: ["http://localhost:5173", "https://shipit-frontend-q97x.onrender.com"], // Ajusta la URL final de tu frontend si cambia
+  origin: [
+    "http://localhost:5173", 
+    "https://shipit-frontend-q97x.onrender.com", 
+    "https://shipit-backend-q97x.onrender.com"
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: "10mb" }));
