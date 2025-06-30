@@ -70,6 +70,7 @@ export const solicitarRetiro = async (req, res) => {
     user.transacciones = [
       ...(user.transacciones || []),
       { 
+        _id: new mongoose.Types.ObjectId(),
         fecha: new Date(), 
         tipo: metodo === "deposito"
           ? "Retiro solicitado (depósito)"
@@ -80,8 +81,9 @@ export const solicitarRetiro = async (req, res) => {
         banco: banco || "",
         bancoOtro: bancoOtro || "",
         clabe: clabe || "",
-      },      
-    ];
+        aprobado: false,
+      },
+    ];    
 
     await user.save();
     res.json({ message: "Retiro solicitado correctamente" });
