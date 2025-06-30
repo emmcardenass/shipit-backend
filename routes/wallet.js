@@ -9,6 +9,8 @@ import {
   getWalletData,
   migrateToSaldo,
   solicitarRetiro,
+  getSolicitudesRetiros,   // ✅ Faltaba esta
+  aprobarRetiro,           // ✅ Y esta
 } from "../controllers/walletController.js";
 
 const router = express.Router();
@@ -21,5 +23,7 @@ router.get("/solicitudes-recarga", authMiddleware, getSolicitudesRecarga);
 router.post("/aprobar-recarga", authMiddleware, aprobarRecarga);
 router.post("/rechazar-recarga", authMiddleware, rechazarRecarga);
 router.post("/editar-recarga", authMiddleware, editarRecarga);
+router.get("/solicitudes-retiro", authMiddleware, getSolicitudesRetiros);
+router.post("/aprobar-retiro", authMiddleware, aprobarRetiro);
 
 export default router;

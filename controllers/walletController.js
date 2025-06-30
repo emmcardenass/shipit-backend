@@ -219,3 +219,54 @@ export const editarRecarga = async (req, res) => {
     res.status(500).json({ message: "Error al editar recarga" });
   }
 };
+
+export const getSolicitudesRetiros = async (req, res) => {
+  try {
+    const usuarios = await User.find({}, "nombre email transacciones");
+
+    const solicitudes = usuarios.flatMap((u) =>
+      (u.transacciones || [])
+        .filter((t) => t.tipo?.toLowerCase().includes("retiro solicitado"))
+        .map((t) => ({
+          userId: u._id,
+          transaccionId: t._id,
+          usuario: u.nombre || "Sin nombre",
+          email: u.email,
+          monto: t.monto,
+          metodo: t.tipo?.includes("(efectivo)") ? "Efectivo" : "Depósito",
+          banco: t.banco || "",
+          bancoOtro: t.bancoOtro || "",
+          clabe: t.clabe || "",
+          aprobado: t.aprobado || false,
+          fecha: new Date(t.fecha).toLocaleString("es-MX", {
+            dateStyle: "short",
+            timeStyle: "short",
+            hour12: false,
+          }),
+        }))
+    );
+
+    res.json(solicitudes.reverse());
+  } catch (err) {
+    res.status(500).json({ message: "Error al obtener solicitudes de retiro" });
+  }
+};
+
+export const aprobarRetiro = async (req, res) => {
+  const { userId, transaccionId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const transaccion = (user.transacciones || []).find(t => t._id == transaccionId);
+    if (!transaccion) return res.status(404).json({ message: "Transacción no encontrada" });
+
+    transaccion.aprobado = true;
+    await user.save();
+
+    res.json({ message: "Retiro confirmado" });
+  } catch (err) {
+    res.status(500).json({ message: "Error al confirmar retiro" });
+  }
+};
