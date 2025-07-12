@@ -21,6 +21,7 @@ import dashboardSuperadminRoutes from './routes/dashboardSuperadminRoutes.js';
 import zonaRoutes from './routes/zonaRoutes.js';
 import shipdayRoutes from './routes/shipdayRoutes.js';
 import shipdayWebhook from "./routes/shipdayWebhook.js";
+import exportRoutes from "./routes/exportRoutes.js"; 
 
 dotenv.config();
 const app = express();
@@ -67,6 +68,7 @@ app.use('/api/wallet', walletRoutes); // ✅ Nueva ruta agregada sin afectar lo 
 app.use('/api/dashboard', dashboardSuperadminRoutes);
 app.use('/api/shipday', shipdayRoutes);
 app.use("/api/shipday", shipdayWebhook);
+app.use('/orders/export', exportRoutes);
 
 // 🏠 Ruta base
 app.get('/', (req, res) => {
