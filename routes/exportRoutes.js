@@ -1,6 +1,6 @@
 import express from "express";
 import { exportarRecolecciones, exportarEntregas } from "../controllers/exportPedidosController.js";
-import authMiddleware from "../middlewares/authMiddleware.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 import isAdmin from "../middlewares/isAdmin.js";
 
 const router = express.Router();

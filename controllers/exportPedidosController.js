@@ -2,8 +2,6 @@
 import Pedido from "../models/Order.js";
 import ExcelJS from "exceljs";
 
-const zonaHorariaMX = "America/Monterrey";
-
 function obtenerRango(fechaReferencia, tipo) {
   const base = new Date(fechaReferencia);
   base.setHours(9, 0, 0, 0);
@@ -20,13 +18,20 @@ function obtenerRango(fechaReferencia, tipo) {
   return { desde, hasta };
 }
 
+// 👉 Utilidad para formatear nombre del archivo
+function obtenerFechaEntregaNombreArchivo(fechaBase = Date.now()) {
+  const fechaEntrega = new Date(fechaBase + 86400000); // entrega es "mañana"
+  return fechaEntrega.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).replaceAll("/", "-");
+}
+
 export const exportarRecolecciones = async (req, res) => {
   try {
     const { desde, hasta } = obtenerRango(Date.now(), "recolecciones");
-
-    const pedidos = await Pedido.find({
-      createdAt: { $gte: desde, $lte: hasta },
-    });
+    const pedidos = await Pedido.find({ createdAt: { $gte: desde, $lte: hasta } });
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Recolecciones");
@@ -57,13 +62,15 @@ export const exportarRecolecciones = async (req, res) => {
       });
     });
 
+    const fechaEntrega = obtenerFechaEntregaNombreArchivo();
+
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=recolecciones.xlsx"
+      `attachment; filename="SHIP IT! Ruta Recolecciones - ${fechaEntrega}.xlsx"`
     );
 
     await workbook.xlsx.write(res);
@@ -77,7 +84,6 @@ export const exportarRecolecciones = async (req, res) => {
 export const exportarEntregas = async (req, res) => {
   try {
     const hoy = Date.now();
-
     const { desde: desdeMismoDia, hasta: hastaMismoDia } = obtenerRango(hoy, "mismoDia");
     const { desde: desdeDiaSig, hasta: hastaDiaSig } = obtenerRango(hoy, "diaSiguiente");
 
@@ -123,13 +129,15 @@ export const exportarEntregas = async (req, res) => {
       });
     });
 
+    const fechaEntrega = obtenerFechaEntregaNombreArchivo();
+
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=entregas.xlsx"
+      `attachment; filename="SHIP IT! Ruta Entregas - ${fechaEntrega}.xlsx"`
     );
 
     await workbook.xlsx.write(res);
