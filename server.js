@@ -68,7 +68,7 @@ app.use('/api/wallet', walletRoutes); // ✅ Nueva ruta agregada sin afectar lo 
 app.use('/api/dashboard', dashboardSuperadminRoutes);
 app.use('/api/shipday', shipdayRoutes);
 app.use("/api/shipday", shipdayWebhook);
-app.use('/orders/export', exportRoutes);
+app.use('/api/orders/export', exportRoutes);
 
 // 🏠 Ruta base
 app.get('/', (req, res) => {
