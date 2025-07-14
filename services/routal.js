@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const ROUTAL_API_KEY = process.env.ROUTAL_API_KEY;
-const ROUTAL_BASE_URL = "https://planner.routal.com/api";
+const ROUTAL_BASE_URL = "https://api.routal.com/api";
 
-export const crearEnvioRoutal = async (pedido) => {
+export const crearRutaRoutal = async (pedido) => {
   try {
     const response = await axios.post(
-      `${ROUTAL_BASE_URL}/plans`,
+      `${ROUTAL_BASE_URL}/plans?private_key=${ROUTAL_API_KEY}`, // 👈 API Key en la query
       {
-        name: `Pedido ${pedido.envio?.numeroGuia || pedido._id}`,
+        name: `Pedido ${pedido.numeroGuia}`,
         stops: [
           {
             name: pedido.envio.remitente,
@@ -28,7 +28,6 @@ export const crearEnvioRoutal = async (pedido) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${ROUTAL_API_KEY}`,
           "Content-Type": "application/json"
         }
       }
