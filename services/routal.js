@@ -3,7 +3,8 @@ import axios from "axios";
 const ROUTAL_API_KEY = process.env.ROUTAL_API_KEY;
 const ROUTAL_BASE_URL = "https://api.routal.com/api";
 
-export const crearRutaRoutal = async (pedido) => {
+export const crearEnvioRoutal = async (pedido) => {
+
   try {
     const response = await axios.post(
       `${ROUTAL_BASE_URL}/plans?private_key=${ROUTAL_API_KEY}`, // 👈 API Key en la query
