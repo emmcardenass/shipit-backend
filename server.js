@@ -21,7 +21,8 @@ import dashboardSuperadminRoutes from './routes/dashboardSuperadminRoutes.js';
 import zonaRoutes from './routes/zonaRoutes.js';
 import shipdayRoutes from './routes/shipdayRoutes.js';
 import shipdayWebhook from "./routes/shipdayWebhook.js";
-import exportRoutes from "./routes/exportRoutes.js"; 
+import exportRoutes from "./routes/exportRoutes.js";
+import routalWebhook from "./routes/routalWebhook.js";
 
 dotenv.config();
 const app = express();
@@ -69,6 +70,7 @@ app.use('/api/dashboard', dashboardSuperadminRoutes);
 app.use('/api/shipday', shipdayRoutes);
 app.use("/api/shipday", shipdayWebhook);
 app.use('/api/orders/export', exportRoutes);
+app.use("/api/routal", routalWebhook);
 
 // 🏠 Ruta base
 app.get('/', (req, res) => {
