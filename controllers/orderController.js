@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Zona from '../models/Zona.js';
 import Tarifa from '../models/Tarifa.js';
 import { crearEnvioShipday } from "../services/shipdayService.js";
+import { crearEnvioRoutal } from "../services/routal.js";
 
 // Crear nuevo pedido con número de guía alfanumérico dinámico por ciudad
 export const crearPedido = async (req, res) => {
@@ -218,7 +219,15 @@ const datos = {
     // Guardamos el pedido en la DB
     const nuevoPedido = new Order(datos);
     const pedidoGuardado = await nuevoPedido.save();
-
+    // 🚀 Crear pedido automáticamente en Routal
+try {
+  const resultadoRoutal = await crearEnvioRoutal(pedidoGuardado);
+  if (resultadoRoutal) {
+    console.log("📦 Pedido registrado en Routal:", resultadoRoutal.id || resultadoRoutal._id || resultadoRoutal);
+  }
+} catch (error) {
+  console.error("❌ Error al registrar el pedido en Routal:", error.message);
+}
 
 // 🚀 Crear pedido automáticamente en Shipday
     try {
