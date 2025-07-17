@@ -1,4 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
+console.log("🔑 ROUTAL_API_KEY cargada:", ROUTAL_API_KEY);
 
 const ROUTAL_API_KEY = process.env.ROUTAL_API_KEY;
 const ROUTAL_BASE_URL = "https://api.routal.com/api";

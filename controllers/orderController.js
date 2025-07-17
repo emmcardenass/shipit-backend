@@ -2,7 +2,6 @@ import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Zona from '../models/Zona.js';
 import Tarifa from '../models/Tarifa.js';
-import { crearEnvioShipday } from "../services/shipdayService.js";
 import { crearEnvioRoutal } from "../services/routal.js";
 
 // Crear nuevo pedido con número de guía alfanumérico dinámico por ciudad
@@ -227,14 +226,7 @@ try {
   }
 } catch (error) {
   console.error("❌ Error al registrar el pedido en Routal:", error.message);
-}
-
-// 🚀 Crear pedido automáticamente en Shipday
-    try {
-      await crearEnvioShipday(pedidoGuardado);
-    } catch (error) {
-      console.error("❌ Error al registrar el pedido en Shipday:", error.message);
-    }    
+}   
     
     // 🚀 En la respuesta SÍ podemos mandar todo lo que tú quieras para el frontend:
     res.status(201).json({

@@ -22,7 +22,3 @@ services:
         value: 853729643472296
       - key: CLOUDINARY_SECRET
         value: KFI2JqCFn77KtbGE2qXoT4jZco8
-      - key: SHIPDAY_API_KEY
-        value: 8tWMZ0VPtp.sxC1GbZtnX3DiQN6R4Op
-      - key: SHIPDAY_WEBHOOK_TOKEN
-        value: EmmAlejandro24*222

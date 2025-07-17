@@ -19,8 +19,6 @@ import tarifasClienteRoutes from './routes/tarifaCliente.routes.js'; // ✅ Tari
 import walletRoutes from './routes/wallet.js'; // ✅ Ruta de billetera
 import dashboardSuperadminRoutes from './routes/dashboardSuperadminRoutes.js';
 import zonaRoutes from './routes/zonaRoutes.js';
-import shipdayRoutes from './routes/shipdayRoutes.js';
-import shipdayWebhook from "./routes/shipdayWebhook.js";
 import exportRoutes from "./routes/exportRoutes.js";
 import routalWebhook from "./routes/routalWebhook.js";
 
@@ -67,8 +65,6 @@ app.use('/api/tarifas', tarifasRoutes);
 app.use('/api/tarifas-cliente', tarifasClienteRoutes);
 app.use('/api/wallet', walletRoutes); // ✅ Nueva ruta agregada sin afectar lo demás
 app.use('/api/dashboard', dashboardSuperadminRoutes);
-app.use('/api/shipday', shipdayRoutes);
-app.use("/api/shipday", shipdayWebhook);
 app.use('/api/orders/export', exportRoutes);
 app.use("/api/routal", routalWebhook);
 
