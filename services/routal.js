@@ -1,17 +1,17 @@
-import axios from "axios";
 import dotenv from "dotenv";
-
 dotenv.config();
-console.log("🔑 ROUTAL_API_KEY cargada:", ROUTAL_API_KEY);
 
-const ROUTAL_API_KEY = process.env.ROUTAL_API_KEY;
+import axios from "axios";
+
 const ROUTAL_BASE_URL = "https://api.routal.com/api";
 
 export const crearEnvioRoutal = async (pedido) => {
+  const ROUTAL_API_KEY = process.env.ROUTAL_API_KEY; // 👈 se accede solo dentro de la función
+  console.log("🔑 ROUTAL_API_KEY cargada:", ROUTAL_API_KEY);
 
   try {
     const response = await axios.post(
-      `${ROUTAL_BASE_URL}/plans?private_key=${ROUTAL_API_KEY}`, // 👈 API Key en la query
+      `${ROUTAL_BASE_URL}/plans?private_key=${ROUTAL_API_KEY}`,
       {
         name: `Pedido ${pedido.numeroGuia}`,
         stops: [
