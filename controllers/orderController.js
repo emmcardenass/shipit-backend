@@ -189,22 +189,34 @@ if (esAntesDelCorte) {
   baseOperativa.setDate(baseOperativa.getDate() - 1);
 }
 
-// 🟢 Recolección → día siguiente del día base a las 9:00 a.m.
-const fechaRecoleccion = new Date(baseOperativa);
-fechaRecoleccion.setDate(fechaRecoleccion.getDate() + 1);
-fechaRecoleccion.setHours(9, 0, 0, 0);
+// 🟢 Recolección → día siguiente del día base, 9:00 a.m.
+const fechaRecoleccion = new Date(
+  baseOperativa.getFullYear(),
+  baseOperativa.getMonth(),
+  baseOperativa.getDate() + 1,
+  9, 0, 0, 0
+);
 
 // 🟧 Entrega
-let fechaEntrega = new Date(fechaRecoleccion);
+let fechaEntrega;
 
 if (envio.tipo === "standard") {
-  // Día siguiente: pedidos creados entre corte-2 y corte-1 → entregar día siguiente a recolección
-  fechaEntrega.setDate(fechaEntrega.getDate() + 1);
+  // Día siguiente: se entrega al segundo día a las 1:00 p.m.
+  fechaEntrega = new Date(
+    baseOperativa.getFullYear(),
+    baseOperativa.getMonth(),
+    baseOperativa.getDate() + 2,
+    13, 0, 0, 0
+  );
 } else {
-  // Express y Fulfillment → entregar el mismo día de la recolección
-  // Hora fija: entre 12:00:01 p.m. y 8:00 p.m. (guardamos como 1:00 p.m.)
+  // Express y Fulfillment → se entrega mismo día de recolección a la 1:00 p.m.
+  fechaEntrega = new Date(
+    baseOperativa.getFullYear(),
+    baseOperativa.getMonth(),
+    baseOperativa.getDate() + 1,
+    13, 0, 1, 0
+  );
 }
-fechaEntrega.setHours(13, 0, 0, 0); // 1:00 p.m.
 
 // Construcción final del objeto a guardar
 const datos = {
