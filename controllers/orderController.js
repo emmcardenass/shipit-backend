@@ -175,31 +175,36 @@ console.log("🔍 Buscando tarifa con:", {
     // Datos para el Order (solo el envioCompleto limpio se guarda)
     // Calcular fechas programadas según la lógica de negocio
 
+// 🕐 Hora actual
 const ahora = new Date();
-const horaActual = ahora.getHours();
 
-// Calcular fecha de recolección programada
-let fechaRecoleccion = new Date(ahora);
+// 🕘 Corte diario a las 9:00 a.m.
+const corte = new Date(ahora);
+corte.setHours(9, 0, 0, 0);
 
-// Si el pedido se crea entre 9:00 y 12:59 — se recolecta al día siguiente
-if (horaActual >= 9 && horaActual < 13) {
-  fechaRecoleccion.setDate(fechaRecoleccion.getDate() + 1);
+// 🔁 Determinar el "día operativo base"
+const esAntesDelCorte = ahora < corte;
+const baseOperativa = new Date(corte);
+if (esAntesDelCorte) {
+  baseOperativa.setDate(baseOperativa.getDate() - 1);
 }
 
-// Set hora fija de recolección: 09:00:00
+// 🟢 Recolección → día siguiente del día base a las 9:00 a.m.
+const fechaRecoleccion = new Date(baseOperativa);
+fechaRecoleccion.setDate(fechaRecoleccion.getDate() + 1);
 fechaRecoleccion.setHours(9, 0, 0, 0);
 
-// Calcular fecha de entrega programada
+// 🟧 Entrega
 let fechaEntrega = new Date(fechaRecoleccion);
 
-// Express y Fulfillment → entrega el mismo día de la recolección
-// Standard → entrega el día siguiente a la recolección
-if (envio.tipo === 'standard') {
+if (envio.tipo === "standard") {
+  // Día siguiente: pedidos creados entre corte-2 y corte-1 → entregar día siguiente a recolección
   fechaEntrega.setDate(fechaEntrega.getDate() + 1);
+} else {
+  // Express y Fulfillment → entregar el mismo día de la recolección
+  // Hora fija: entre 12:00:01 p.m. y 8:00 p.m. (guardamos como 1:00 p.m.)
 }
-
-// Set hora fija de entrega: 13:00:00
-fechaEntrega.setHours(13, 0, 0, 0);
+fechaEntrega.setHours(13, 0, 0, 0); // 1:00 p.m.
 
 // Construcción final del objeto a guardar
 const datos = {
