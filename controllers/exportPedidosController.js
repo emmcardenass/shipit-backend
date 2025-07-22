@@ -41,7 +41,11 @@ export const exportarRecolecciones = async (req, res) => {
       hasta = rango.hasta;
     }
 
-    const pedidos = await Pedido.find({ createdAt: { $gte: desde, $lte: hasta } });
+    console.log("📦 Recolecciones: desde", desde.toISOString(), "hasta", hasta.toISOString());
+
+    const pedidos = await Pedido.find({ fechaRecoleccionProgramada: { $gte: desde, $lte: hasta } });
+
+    console.log(`✅ Pedidos encontrados para recolección: ${pedidos.length}`);
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Recolecciones");
@@ -84,25 +88,31 @@ export const exportarEntregas = async (req, res) => {
     if (fechaInicio && fechaFin) {
       const desde = new Date(fechaInicio);
       const hasta = new Date(`${fechaFin}T23:59:59`);
-      pedidos = await Pedido.find({ createdAt: { $gte: desde, $lte: hasta } });
+      pedidos = await Pedido.find({ fechaEntregaProgramada: { $gte: desde, $lte: hasta } });
+      console.log("📦 Entregas con fechas personalizadas: desde", desde.toISOString(), "hasta", hasta.toISOString());
     } else {
       const hoy = Date.now();
       const { desde: desdeMismoDia, hasta: hastaMismoDia } = obtenerRango(hoy, "mismoDia");
       const { desde: desdeDiaSig, hasta: hastaDiaSig } = obtenerRango(hoy, "diaSiguiente");
 
+      console.log("📦 Entregas Express/Fulfillment: desde", desdeMismoDia.toISOString(), "hasta", hastaMismoDia.toISOString());
+      console.log("📦 Entregas Standard: desde", desdeDiaSig.toISOString(), "hasta", hastaDiaSig.toISOString());
+
       pedidos = await Pedido.find({
         $or: [
           {
-            createdAt: { $gte: desdeMismoDia, $lte: hastaMismoDia },
+            fechaEntregaProgramada: { $gte: desdeMismoDia, $lte: hastaMismoDia },
             "envio.tipo": { $in: ["express", "fulfillment"] },
           },
           {
-            createdAt: { $gte: desdeDiaSig, $lte: hastaDiaSig },
+            fechaEntregaProgramada: { $gte: desdeDiaSig, $lte: hastaDiaSig },
             "envio.tipo": "standard",
           },
         ],
       });
     }
+
+    console.log(`✅ Pedidos encontrados para entrega: ${pedidos.length}`);
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Entregas");
