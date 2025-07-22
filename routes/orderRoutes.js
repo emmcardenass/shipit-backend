@@ -10,6 +10,7 @@ import {
   rastrearPedido,
   obtenerPorNumeroGuia,
   obtenerTodosLosPedidos, // ✅ Importado
+  actualizarIntentosEntrega,
 } from '../controllers/orderController.js';
 import authMiddleware from '../middleware/authMiddleware.js'; // ✅ Importado
 
@@ -38,5 +39,7 @@ router.put('/assign-driver/:orderId', asignarRepartidor);
 router.get('/rastreo/:id', rastrearPedido); // ✅ Nueva ruta al final
 
 router.get('/guia/:numeroGuia', obtenerPorNumeroGuia);
+
+router.put('/admin/update-intentos/:id', authMiddleware, actualizarIntentosEntrega);
 
 export default router;

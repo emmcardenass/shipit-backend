@@ -409,4 +409,27 @@ export const obtenerTodosLosPedidos = async (req, res) => {
     console.error("Error al obtener todos los pedidos:", error);
     res.status(500).json({ mensaje: "Error al obtener pedidos" });
   }
+}; // ✅ CIERRA aquí la función correctamente
+
+// ✅ Y luego sí va esta parte fuera
+export const actualizarIntentosEntrega = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { intentosEntrega } = req.body;
+
+    const pedido = await Order.findByIdAndUpdate(
+      id,
+      { intentosEntrega },
+      { new: true }
+    );
+
+    if (!pedido) {
+      return res.status(404).json({ error: "Pedido no encontrado" });
+    }
+
+    res.status(200).json(pedido);
+  } catch (error) {
+    console.error("❌ Error actualizando intentos:", error);
+    res.status(500).json({ error: "Error actualizando intentos" });
+  }
 };
