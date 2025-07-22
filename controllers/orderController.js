@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Zona from '../models/Zona.js';
 import Tarifa from '../models/Tarifa.js';
 import { crearEnvioRoutal } from "../services/routal.js";
+import moment from "moment-timezone";
 
 // Crear nuevo pedido con número de guía alfanumérico dinámico por ciudad
 export const crearPedido = async (req, res) => {
@@ -175,47 +176,41 @@ console.log("🔍 Buscando tarifa con:", {
     // Datos para el Order (solo el envioCompleto limpio se guarda)
     // Calcular fechas programadas según la lógica de negocio
 
-// 🕐 Hora actual
-const ahora = new Date();
+// 📌 Zona horaria local México
+const ahora = moment.tz("America/Monterrey");
 
 // 🕘 Corte diario a las 9:00 a.m.
-const corte = new Date(ahora);
-corte.setHours(9, 0, 0, 0);
+const corte = ahora.clone().set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
 
-// 🔁 Determinar el "día operativo base"
-const esAntesDelCorte = ahora < corte;
-const baseOperativa = new Date(corte);
-if (esAntesDelCorte) {
-  baseOperativa.setDate(baseOperativa.getDate() - 1);
-}
+// 🔁 Día operativo base
+const baseOperativa = ahora.isBefore(corte)
+  ? corte.clone().subtract(1, "day")
+  : corte.clone();
 
 // 🟢 Recolección → día siguiente del día base, 9:00 a.m.
-const fechaRecoleccion = new Date(
-  baseOperativa.getFullYear(),
-  baseOperativa.getMonth(),
-  baseOperativa.getDate() + 1,
-  9, 0, 0, 0
-);
+const fechaRecoleccion = baseOperativa
+  .clone()
+  .add(1, "day")
+  .set({ hour: 9, minute: 0, second: 0, millisecond: 0 })
+  .toDate();
 
-// 🟧 Entrega
+// 🟧 Entrega → depende del tipo
 let fechaEntrega;
 
 if (envio.tipo === "standard") {
-  // Día siguiente: se entrega al segundo día a las 1:00 p.m.
-  fechaEntrega = new Date(
-    baseOperativa.getFullYear(),
-    baseOperativa.getMonth(),
-    baseOperativa.getDate() + 2,
-    13, 0, 0, 0
-  );
+  // Día siguiente: se entrega al segundo día a la 1:00 p.m.
+  fechaEntrega = baseOperativa
+    .clone()
+    .add(2, "days")
+    .set({ hour: 13, minute: 0, second: 0, millisecond: 0 })
+    .toDate();
 } else {
   // Express y Fulfillment → se entrega mismo día de recolección a la 1:00 p.m.
-  fechaEntrega = new Date(
-    baseOperativa.getFullYear(),
-    baseOperativa.getMonth(),
-    baseOperativa.getDate() + 1,
-    13, 0, 1, 0
-  );
+  fechaEntrega = baseOperativa
+    .clone()
+    .add(1, "days")
+    .set({ hour: 13, minute: 0, second: 1, millisecond: 0 })
+    .toDate();
 }
 
 // Construcción final del objeto a guardar
