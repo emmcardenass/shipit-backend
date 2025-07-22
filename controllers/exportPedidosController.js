@@ -16,7 +16,7 @@ function obtenerRangoOperativo(tipo = "recolecciones") {
   }
 
   const desde = baseOperativa.clone().add(1, "second"); // 9:00:01 a.m.
-  const hasta = baseOperativa.clone().add(1, "day");    // 9:00:00 a.m. siguiente
+  const hasta = baseOperativa.clone().add(1, "day").subtract(1, "millisecond"); // 8:59:59.999 a.m. siguiente
 
   if (tipo === "diaSiguiente") {
     return {
