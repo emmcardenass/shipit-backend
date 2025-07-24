@@ -34,7 +34,8 @@ app.use(cors({
   origin: [
     "http://localhost:5173", 
     "https://shipit-frontend-q97x.onrender.com", 
-    "https://shipit-backend-q97x.onrender.com"
+    "https://shipit-backend-q97x.onrender.com",
+    "https://shipit-frontend.vercel.app"
   ],
   credentials: true
 }));
